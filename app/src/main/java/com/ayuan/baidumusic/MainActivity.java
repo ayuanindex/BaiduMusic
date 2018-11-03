@@ -1,0 +1,92 @@
+package com.ayuan.baidumusic;
+
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity {
+
+    private IService iService;
+    private MyConnection myConnection;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Button player = (Button) findViewById(R.id.btn_player);
+        Button stop = (Button) findViewById(R.id.btn_stop);
+        Button continueplayin = (Button) findViewById(R.id.btn_continueplayin);
+
+        player.setOnClickListener(new MyPlayer());
+        stop.setOnClickListener(new MyStop());
+        continueplayin.setOnClickListener(new MyContinuePlaying());
+
+        Intent intent = new Intent(this, MusicService.class);
+        myConnection = new MyConnection();
+        //混合方式开启服务
+        //先调用startService   目的：保证服务能够再后台长期运行
+        startService(intent);
+        //调用bindService 目的：为了获取自己定义的IBinder的实现类
+        boolean b = bindService(intent, myConnection, BIND_AUTO_CREATE);
+        if (b) {
+            Toast.makeText(this, "服务开启成功", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //点击按钮开始播放
+    private class MyPlayer implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            iService.callPlayMusic();
+        }
+    }
+
+    //点击按钮暂停播放
+    private class MyStop implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            iService.callPauseMusic();
+        }
+    }
+
+    //点击按钮继续播放
+    private class MyContinuePlaying implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            iService.callRePlayMusic();
+        }
+    }
+
+    //监听服务的状态
+    public class MyConnection implements ServiceConnection {
+        //当服务连接成功是调用
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            //获取定义的IBinder的实现类
+            iService = (IService) service;
+        }
+
+        //当服务服务失去连接时调用
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Toast.makeText(this, "正在解绑服务", Toast.LENGTH_SHORT).show();
+        //当Activity销毁的时候解绑服务 目的：是为了不报红警告的日志
+        if (myConnection != null) {
+            unbindService(myConnection);
+        }
+    }
+}
