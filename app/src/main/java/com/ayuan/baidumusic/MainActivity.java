@@ -3,17 +3,33 @@ package com.ayuan.baidumusic;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    private static String TAG = "MainActivity";
 
     private IService iService;
     private MyConnection myConnection;
+    public static Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle data = msg.getData();    
+            Object musicDuration = data.get("musicDuration");
+            Object currentTimeOfMusic = data.get("currentTimeOfMusic");
+            Log.i(TAG, "总时长:" + musicDuration);
+            Log.i(TAG, "当前时长:" + currentTimeOfMusic);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         Button player = (Button) findViewById(R.id.btn_player);
         Button stop = (Button) findViewById(R.id.btn_stop);
         Button continueplayin = (Button) findViewById(R.id.btn_continueplayin);
+        SeekBar schedule = (SeekBar) findViewById(R.id.sb_schedule);
 
         player.setOnClickListener(new MyPlayer());
         stop.setOnClickListener(new MyStop());

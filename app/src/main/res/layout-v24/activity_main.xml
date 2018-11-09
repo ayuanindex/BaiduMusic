@@ -29,7 +29,6 @@
         android:id="@+id/sb_schedule"
         style="@android:style/Widget.Material.SeekBar.Discrete"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:ignore="NewApi" />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

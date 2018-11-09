@@ -4,19 +4,32 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
+import android.os.Message;
+import android.util.Log;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MusicService extends Service {
+
+    private String TAG = "MusicService";
+    private MediaPlayer mediaPlayer;
+
     @Override
     public IBinder onBind(Intent intent) {
         return new MyBind();
     }
 
+    //服务已开启就执行这个方法
     @Override
     public void onCreate() {
         super.onCreate();
+        mediaPlayer = new MediaPlayer();
     }
 
     @Override
@@ -31,17 +44,50 @@ public class MusicService extends Service {
 
     //播放音乐的方法
     public void playeMusic() {
-        //TODO 等多媒体学完就开始完善这个播放音乐的功能
+        try {
+            mediaPlayer.setDataSource("/mnt/sdcard/Music/Jake Miller - Parties.mp3");
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            //更新SeekBar
+            updateSeekBa();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Toast.makeText(this, "正在播放", Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateSeekBa() {
+        //获取音乐的总时长 和当前已经播放时长
+        if (mediaPlayer != null) {
+            //总时长
+            final int musicDuration = mediaPlayer.getDuration();
+            //使用Timer定时器来定期取得当前播放时长------时间间隔1s
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    int currentTimeOfMusic = mediaPlayer.getCurrentPosition();
+                    Message message = Message.obtain();
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("musicDuration", musicDuration);
+                    bundle.putInt("currentTimeOfMusic", currentTimeOfMusic);
+                    message.setData(bundle);
+                    MainActivity.handler.sendMessage(message);
+                    Log.i(TAG, "time:" + currentTimeOfMusic);
+                }
+            }, 0, 1000);
+        }
     }
 
     //暂停音乐的方法
     public void pauseMusic() {
+        mediaPlayer.pause();
         Toast.makeText(this, "暂停播放", Toast.LENGTH_SHORT).show();
     }
 
     //继续播放
     public void rePlayMusic() {
+        mediaPlayer.start();
         Toast.makeText(this, "继续播放", Toast.LENGTH_SHORT).show();
     }
 
