@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Bundle data = msg.getData();    
+            Bundle data = msg.getData();
             Object musicDuration = data.get("musicDuration");
             Object currentTimeOfMusic = data.get("currentTimeOfMusic");
             Log.i(TAG, "总时长:" + musicDuration);
