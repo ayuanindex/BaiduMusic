@@ -18,6 +18,7 @@ public class MusicService extends Service {
     private String TAG = "MusicService";
     private MediaPlayer mediaPlayer;
 
+
     @Override
     public IBinder onBind(Intent intent) {
         return new MyBind();
@@ -47,8 +48,6 @@ public class MusicService extends Service {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource("/mnt/sdcard/Music/Jake Miller - Parties.mp3");//播放本地音乐
                 mediaPlayer.prepare();
-                /*mediaPlayer.setDataSource("http://172.50.223.22:8080/a.mp3");//播放网络音乐
-                mediaPlayer.prepareAsync();*/
                 mediaPlayer.start();
                 //更新SeekBar
                 updateSeekBa();
