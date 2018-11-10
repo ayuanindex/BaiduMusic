@@ -19,13 +19,23 @@ public class MainActivity extends AppCompatActivity {
 
     private IService iService;
     private MyConnection myConnection;
+    private static SeekBar schedule;
     public static Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             Bundle data = msg.getData();
+            //歌曲总时长
             Object musicDuration = data.get("musicDuration");
+            //当前已经播放时长
             Object currentTimeOfMusic = data.get("currentTimeOfMusic");
+            if (schedule != null) {
+                schedule.setMax((Integer) musicDuration);
+                schedule.setProgress((Integer) currentTimeOfMusic);
+                if (((Integer) musicDuration - (Integer) currentTimeOfMusic) <= 2) {
+                    schedule.setProgress(0);
+                }
+            }
             Log.i(TAG, "总时长:" + musicDuration);
             Log.i(TAG, "当前时长:" + currentTimeOfMusic);
         }
@@ -39,11 +49,12 @@ public class MainActivity extends AppCompatActivity {
         Button player = (Button) findViewById(R.id.btn_player);
         Button stop = (Button) findViewById(R.id.btn_stop);
         Button continueplayin = (Button) findViewById(R.id.btn_continueplayin);
-        SeekBar schedule = (SeekBar) findViewById(R.id.sb_schedule);
+        schedule = (SeekBar) findViewById(R.id.sb_schedule);
 
         player.setOnClickListener(new MyPlayer());
         stop.setOnClickListener(new MyStop());
         continueplayin.setOnClickListener(new MyContinuePlaying());
+        schedule.setOnSeekBarChangeListener(new MySeekTo());
 
         Intent intent = new Intent(this, MusicService.class);
         myConnection = new MyConnection();
@@ -81,6 +92,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //指定播放进度
+    private class MySeekTo implements SeekBar.OnSeekBarChangeListener {
+        //当进度改变的时候调用
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+        }
+
+        //当开始拖动的时候调用
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        //当拖动停止的时候调用
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            iService.callSeekTo(seekBar.getProgress());
+        }
+    }
+
+
     //监听服务的状态
     public class MyConnection implements ServiceConnection {
         //当服务连接成功是调用
@@ -106,4 +139,5 @@ public class MainActivity extends AppCompatActivity {
             unbindService(myConnection);
         }
     }
+
 }

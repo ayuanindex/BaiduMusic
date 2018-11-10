@@ -44,16 +44,18 @@ public class MusicService extends Service {
 
     //播放音乐的方法
     public void playeMusic() {
-        try {
-            mediaPlayer.setDataSource("/mnt/sdcard/Music/Jake Miller - Parties.mp3");
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-            //更新SeekBar
-            updateSeekBa();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (mediaPlayer != null) {
+            try {
+                mediaPlayer.setDataSource("/mnt/sdcard/Music/Jake Miller - Parties.mp3");
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+                //更新SeekBar
+                updateSeekBa();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(this, "正在播放", Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(this, "正在播放", Toast.LENGTH_SHORT).show();
     }
 
     private void updateSeekBa() {
@@ -75,7 +77,7 @@ public class MusicService extends Service {
                     MainActivity.handler.sendMessage(message);
                     Log.i(TAG, "time:" + currentTimeOfMusic);
                 }
-            }, 0, 1000);
+            }, 1, 1000);
         }
     }
 
@@ -89,6 +91,11 @@ public class MusicService extends Service {
     public void rePlayMusic() {
         mediaPlayer.start();
         Toast.makeText(this, "继续播放", Toast.LENGTH_SHORT).show();
+    }
+
+    //实现指定播放的位置
+    public void seekTo(int position) {
+        mediaPlayer.seekTo(position);
     }
 
     //再服务内部定义一个IBinder的实现类(Binder是IBinder的直接实现子类）
@@ -111,6 +118,13 @@ public class MusicService extends Service {
         public void callRePlayMusic() {
             rePlayMusic();
         }
+
+        @Override
+        public void callSeekTo(int position) {
+            seekTo(position);
+        }
+
+
     }
 
 }
