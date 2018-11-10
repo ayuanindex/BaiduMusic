@@ -32,9 +32,9 @@ public class MainActivity extends AppCompatActivity {
             if (schedule != null) {
                 schedule.setMax((Integer) musicDuration);
                 schedule.setProgress((Integer) currentTimeOfMusic);
-                if (((Integer) musicDuration - (Integer) currentTimeOfMusic) <= 2) {
+                /*if (((Integer) musicDuration - (Integer) currentTimeOfMusic) <= 2) {
                     schedule.setProgress(0);
-                }
+                }*/
             }
             Log.i(TAG, "总时长:" + musicDuration);
             Log.i(TAG, "当前时长:" + currentTimeOfMusic);

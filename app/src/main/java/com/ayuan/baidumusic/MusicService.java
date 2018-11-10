@@ -5,13 +5,11 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -46,8 +44,11 @@ public class MusicService extends Service {
     public void playeMusic() {
         if (mediaPlayer != null) {
             try {
-                mediaPlayer.setDataSource("/mnt/sdcard/Music/Jake Miller - Parties.mp3");
+                mediaPlayer.reset();
+                mediaPlayer.setDataSource("/mnt/sdcard/Music/Jake Miller - Parties.mp3");//播放本地音乐
                 mediaPlayer.prepare();
+                /*mediaPlayer.setDataSource("http://172.50.223.22:8080/a.mp3");//播放网络音乐
+                mediaPlayer.prepareAsync();*/
                 mediaPlayer.start();
                 //更新SeekBar
                 updateSeekBa();
@@ -64,7 +65,7 @@ public class MusicService extends Service {
             //总时长
             final int musicDuration = mediaPlayer.getDuration();
             //使用Timer定时器来定期取得当前播放时长------时间间隔1s
-            Timer timer = new Timer();
+            final Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -78,6 +79,14 @@ public class MusicService extends Service {
                     Log.i(TAG, "time:" + currentTimeOfMusic);
                 }
             }, 1, 1000);
+            //当歌曲执行完毕后把Timer和TimerTask取消
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    Log.i(TAG, "歌曲播放完成了");
+                    timer.cancel();
+                }
+            });
         }
     }
 
